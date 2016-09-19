@@ -1,0 +1,314 @@
+---
+title: "Experimental Time Series Features"
+author: "JJB"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Experimental Time Series Features}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = TRUE, fig.width = 7)
+```
+
+# Introduction
+
+The package as it presently stands contains functions that are being used
+within Fall 2016 courses at the University of Illinois at Urbana-Champaign (UIUC).
+Specifically, students are using these functions within 
+STAT 578 (Special Topic): Time Series Forecasting and
+STAT 429: Time Series Analysis. Presently, the functions are meant to provide
+students with the ability to interact with time series data. All functions
+will eventually end up either moving to a different package (perhaps `gmwm`) 
+or may end up being removed.
+
+To use the package simply load it into R via:
+
+```{r load_library, echo = FALSE, message = FALSE}
+library("exts")
+```
+
+Presently, `gmwm` and `magrittr` will autoload. 
+
+# Pipable Time Series Functions
+
+Outside of being used as an educational and practical tool, the package also
+serves to provide tenets of pipable data within a time series context. Thus, the
+package is primarily designed with the notion of the piping operator (`%>%`)
+fully in play as well as other _R_ related tools like `dplyr` and `tidyr`.
+As this package is experimental, the implementations may shift significantly.
+
+# (R)ACF and PACF
+
+There exists built in functions that enable the computation of the ACF and PACF
+graphs. Specifically, these functions are given by:
+
+```{r}
+# Set seed for reproducibility
+set.seed(8672)
+
+# Generate an AR1
+xt = gen.gts(AR1(phi = 0.6, sigma2 = 1))
+
+# Obtain the empirical ACF
+xt %>% 
+  emp_acf %>%
+  autoplot
+
+# Obtain the empirical RACF (Robust ACF)
+xt %>% 
+  emp_acf(robust = TRUE) %>%
+  autoplot
+
+# Obtain the empirical PACF
+xt %>% 
+  emp_pacf %>%
+  autoplot
+```
+
+## Observe ACF and PACF Graphs
+
+Often times, it is helpful to observe the time series, ACF, and PACF graphs 
+together. To do so, use:
+
+```{r, fig.width = 8}
+# Bring in time series data
+xt = gts(log(lynx), start = 1821, freq = 1)
+
+xt %>%
+  eda_ts %>%
+  autoplot
+```
+
+## Theoretical ACF and PACF graphs for ARMA Models
+
+Theoretical graphs are also available separately via `theo_acf()` and `theo_pacf()`
+or combined into one via `theo_corr()`.
+
+```{r}
+model = ARMA(ar = c(.50, -0.25), ma = .20)
+
+# Theoretical ACF
+model %>%
+  theo_acf %>%
+  autoplot
+
+# Theoretical PACF
+model %>%
+  theo_pacf %>%
+  autoplot
+
+# Create a theoretical graph
+model %>%
+  theo_corr %>%
+  autoplot
+```
+
+## Compare Classical and Robust ACF
+
+To observe difference between the classical and robust ACF, one can use `compare_acf()`
+
+```{r, fig.width = 8}
+# Bring in time series data
+xt = gts(log(lynx), start = 1821, freq = 1)
+
+xt %>%
+  compare_acf %>%
+  autoplot
+```
+
+
+# Diagnostic Functions
+
+The style for diagnostic features has all functions being prefixed by `diag_`.
+Each function has its own graphing utility that can be called with either
+`autoplot` or `plot` as before.
+
+## Residual extraction and standardization (`diag_resid`)
+
+Residuals are able to be extract from `arima` and `lm` classes in addition to
+manipulated to be standardized via `resid / sd(resid)` through a `std = TRUE`
+flag.
+
+```{r}
+# Extract and standardize residuals
+sunspot.year %>%
+  arima(c(9,0,0)) %>%
+  diag_resid(std = TRUE) -> resids
+
+# Graph Histogram
+autoplot(resids, type = "hist")
+
+# Graph Histogram
+autoplot(resids, type = "resid")
+
+# Graph Histogram
+autoplot(resids, type = "both")
+```
+
+## Quantile-Quantile Normal Plot (`diag_qq`)
+
+The `diag_qq` plot creates a quantil-quantile plot that contains a fitted
+normal line. Typically, this plot is used to evaluate the residuals of a model.
+
+```{r}
+# Observing residuals of an Arima process
+sunspot.year %>%
+  arima(c(9,0,0)) %>%
+  diag_qq(std = TRUE) %>%
+  autoplot
+
+# Observe time series
+sunspot.year %>%
+  diag_qq(std = FALSE) %>%
+  autoplot
+```
+
+## Wavelet Variance (WV) Estimate of White Noise (`diag_wv`)
+
+Wavelet Variance provides an estimation technique to display whether the 
+observed process is a White Noise. If the orange line follows the dark blue 
+line closely or remains within the blue confidence interval, then the process
+is likely to be a white noise.
+
+```{r}
+# White Noise Process
+sunspot.year %>%
+  arima(c(9,0,0)) %>%
+  diag_wv %>%
+  autoplot
+```
+
+## Portmanteau Tests
+
+The package provides a convient wrapper into _R_'s `Box.test()` function that
+separates the different tests, 'Ljung-Box' and 'Box-Pierce', to assess the null
+hypothesis of independence in a given time series. The function makes available
+a `data.frame` containing: `lag`, `p_value`, `statistic` for each of the tests
+run that can then be used to achieve a diagnostic plot like so:
+
+```{r}
+# Ljung-Box test
+sunspot.year %>%
+  arima(c(9,0,0)) %>%
+  diag_ljungbox %>%
+  autoplot
+
+# Box-Pierce Test
+sunspot.year %>%
+  arima(c(9,0,0)) %>%
+  diag_boxpierce %>%
+  autoplot
+```
+
+## Residual vs. Fitted Values (Developmental)
+
+**Warning: The inputs for this function will change.**
+
+One further useful plot is to compare the residuals to the fitted values.
+
+```{r, fig.width = 5}
+xt = sunspot.year
+model = arima(xt, c(9,0,0))
+
+resids = resid(model)
+fit = xt - resids
+
+diag_fitted(fit, resids) %>%
+  autoplot
+```
+
+## Master Diagnostic Plot (Developmental)
+
+
+**Warning: This function will change in the future to adhere more to a chained
+argument**
+
+Each of the diagnostic plots are available standalone. However, there is benefits
+to plotting all of the diagnostic information simultaneously. Hence, the `diag_ts()`
+function that will calculate all of the above values and provide a diagnostic plot.
+
+```{r, fig.width = 5}
+xt = sunspot.year
+model = arima(xt, c(9,0,0))
+diag_ts(model, xt) %>% 
+  autoplot
+```
+
+# Selecting an appropriate time series model
+
+There are many ways to go about selecting an ideal time series model. Within
+the package there are `select_arima()`, `select_arma()`, `select_ar()`, 
+and `select_ma()` functions that build all of the time series models alongside
+multiple Information Criterion (IC) such as:
+
+- Akaike information criterion (AIC): $AIC = - 2{L_{\max }} + 2k$
+- Bayesian information criterion (BIC): $BIC = - 2{L_{\max }} + klog(n)$
+- Hannan–Quinn information (HQC): $HQC =  - 2{L_{\max }} + 2k\log \left( {\log \left( n \right)} \right)$. 
+
+where $L_{\max }$ is the log-likelihood, $k$ is the number of parameters, 
+and $n$ is sample size.
+
+To acess the best model according to one of the criteria, use: `best_model(x, ic="aic")`
+
+## Selecting one dimension `select_ar()` and `select_ma()`
+
+```{r}
+# Bring in time series data
+sunspot.year %>%
+  gts(start = 1700, freq = 1) %>%
+  select_ar(p.min = 1, p.max = 8) -> model_info
+
+# Obtain a plot of the model selection criteria
+model_info %>% 
+  autoplot
+
+# Obtain the best model (AIC is default)
+model_info %>%
+  best_model
+
+# Obtain the best model with BIC
+model_info %>%
+  best_model(ic = 'bic') -> bmodel
+
+# See the ACF of the residuals for the model
+bmodel %>%
+  emp_corr %>%
+  autoplot
+```
+
+# Utilities
+
+The package hosts various utilities to improve working with simulated data.
+
+In particular, the package offers the ability to cast a simulation `matrix` to
+`data.frame` for graphing within `ggplot2`. The simulation cast feature is
+meant to ease the use of simulated data within `ggplot2`. Thus, support exists
+for both casting simulated data stored by row (default) and by column into a
+`Round` and `Draw` framework, where `Round` means the simulation iteration and
+`Draw` means the statistic observed.
+
+```{r}
+# Set Seed
+set.seed(5812)
+
+# Generate data
+m = matrix(rnorm(10), 2, 5)
+
+# Organize by row
+m %>%
+  cast_simdf %>%
+  head(n = 5)
+
+# Organize by column
+m %>%
+  cast_simdf(wide = FALSE) %>%
+  head(n = 5)
+
+# Graph
+m %>%
+  cast_simdf(wide = FALSE) %>%
+  autoplot
+```

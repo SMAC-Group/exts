@@ -1,0 +1,26 @@
+Package: exts
+Title: Experimental Features for Time Series
+Version: 0.0.0.9000
+Authors@R: c(person("James", "Balamuta", email = "balamut2@illinois.edu", role = c("aut", "cre")),
+             person("Stephane", "Guerrier", email = "stephane@illinois.edu", role = c("aut")))
+Description: Different ideas for time series implementations are housed here
+    before being incorporated into more stable and/or mature projects.
+Depends:
+    R (>= 3.3.1),
+    magrittr,
+    gmwm
+Imports: gridExtra,
+         scales,
+         purrr,
+         broom,
+         dplyr,
+         tidyr
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Remotes: SMAC-Group/gmwm
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1

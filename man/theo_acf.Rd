@@ -4,10 +4,10 @@
 \alias{theo_acf}
 \title{Computes the Theoretical Autocorrelation (ACF) of an ARMA process}
 \usage{
-theo_acf(model = ARMA(ar = c(0.5, -0.25), ma = 0.2), lag.max = NULL)
+theo_acf(model = ARMA(ar = c(0.5, -0.25), ma = 0.2), lag.max = 20)
 }
 \arguments{
-\item{lag.max}{A \code{integer} indicating the max length. Default is \eqn{max(ar, ma +1)}.}
+\item{lag.max}{A \code{integer} indicating the max length.}
 
 \item{ar}{A \code{vector} containing the AR coefficients}
 
@@ -19,7 +19,7 @@ of an ARMA process.
 }
 \examples{
 # Computes the theoretical ACF for an ARMA(1,0) or better known as an AR(1)
-theo_acf(ARMA(ar = -0.25, ma = NULL), lag.max = 7)
+theo_acf(ARMA(ar = -0.25, ma = NULL))
 # Computes the theoretical ACF for an ARMA(2, 1)
 theo_acf(ARMA(ar = c(.50, -0.25), ma = 0.20), lag.max = 10)
 }

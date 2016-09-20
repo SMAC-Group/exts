@@ -4,10 +4,10 @@
 \alias{theo_pacf}
 \title{Computes the Theoretical Partial Autocorrelation (PACF) of an ARMA process}
 \usage{
-theo_pacf(model = ARMA(ar = c(0.5, -0.25), ma = 0.2), lag.max = NULL)
+theo_pacf(model = ARMA(ar = c(0.5, -0.25), ma = 0.2), lag.max = 20)
 }
 \arguments{
-\item{lag.max}{A \code{integer} indicating the max length. Default is \eqn{max(ar, ma +1)}.}
+\item{lag.max}{A \code{integer} indicating the max length.}
 }
 \description{
 Acts as a wrapper around `ARMAacf` to calculate the theoretical PACF process

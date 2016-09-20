@@ -97,15 +97,15 @@ autoplot.acf_plot = function(object, show.ci = TRUE, ci = 0.95, ...){
 #' of an ARMA process.
 #' @param ar A \code{vector} containing the AR coefficients
 #' @param ma A \code{vector} containing the MA coefficients
-#' @param lag.max A \code{integer} indicating the max length. Default is \eqn{max(ar, ma +1)}.
+#' @param lag.max A \code{integer} indicating the max length.
 #' @examples
 #' # Computes the theoretical ACF for an ARMA(1,0) or better known as an AR(1)
-#' theo_acf(ARMA(ar = -0.25, ma = NULL), lag.max = 7)
+#' theo_acf(ARMA(ar = -0.25, ma = NULL))
 #' # Computes the theoretical ACF for an ARMA(2, 1)
 #' theo_acf(ARMA(ar = c(.50, -0.25), ma = 0.20), lag.max = 10)
 #' @importFrom gmwm is.ts.model ARMA
 #' @export
-theo_acf = function(model = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = NULL){
+theo_acf = function(model = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = 20){
   theo_arma_(model = model, lag.max = lag.max, pacf = FALSE)
 }
 
@@ -120,12 +120,12 @@ theo_acf = function(model = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = NULL){
 #' theo_pacf(ARMA(ar = -0.25, ma = NULL), lag.max = 7)
 #' # Computes the theoretical ACF for an ARMA(2, 1)
 #' theo_pacf(ARMA(ar = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = 10)
-theo_pacf = function(model = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = NULL){
+theo_pacf = function(model = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = 20){
   theo_arma_(model = model, lag.max = lag.max, pacf = TRUE)
 }
 
 # Work horse of the above two functions
-theo_arma_ = function(model, lag.max = NULL, pacf = FALSE){
+theo_arma_ = function(model, lag.max = 20, pacf = FALSE){
 
   if(!is.ts.model(model)){ stop("`model` must be a `ts.model` object.")}
   if(model$starting){ stop("`model` must have specific parameter values.")}
@@ -176,8 +176,6 @@ autoplot.theo_arma = function(object, ...){
 }
 
 
-
-
 #' Compute Theoretical ACF and PACF
 #'
 #' Computes both the ACF and PACF for a given process.
@@ -186,7 +184,7 @@ autoplot.theo_arma = function(object, ...){
 #' @examples
 #' # Computes the theoretical ACF for an ARMA(2, 1)
 #' theo_corr(ARMA(ar = c(.50, -0.25), ma = 0.20), lag.max = 10)
-theo_corr = function(model = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = NULL){
+theo_corr = function(model = ARMA(ar = c(.50, -0.25), ma = .20), lag.max = 20){
 
   structure(list(acf = theo_acf(model, lag.max = lag.max),
                  pacf = theo_pacf(model, lag.max = lag.max)), class = "theo_corr")
@@ -219,30 +217,31 @@ autoplot.theo_corr = function(object, ...){
 
 #' Empirical ACF Plot
 #'
-#' @param x      A data set, \code{\link{arima}} or \code{\link{lm}}
-#' @param type   A \code{string} with either \code{"correlation"} or \code{"covariance"}
-#' @param robust A \code{boolean} indicating whether to use a robust estimation.
+#' @param x       A data set, \code{\link{arima}} or \code{\link{lm}}
+#' @param lag.max A \code{integer} indicating the length of the data.
+#' @param type    A \code{string} with either \code{"correlation"} or \code{"covariance"}
+#' @param robust  A \code{boolean} indicating whether to use a robust estimation.
 #' @rdname emp_acf
 #' @export
-emp_acf = function(x, type = "correlation", robust = FALSE, ...){
+emp_acf = function(x, lag.max = 30L, type = "correlation", robust = FALSE, ...){
   UseMethod("emp_acf")
 }
 
 #' @rdname emp_acf
 #' @export
-emp_acf.Arima = function(x, type = "correlation", robust = FALSE, ...){
-  emp_acf.default(x = x$residuals, robust = robust)
+emp_acf.Arima = function(x, lag.max = 30L, type = "correlation", robust = FALSE, ...){
+  emp_acf.default(x = x$residuals, lag.max = lag.max, type = type, robust = robust)
 }
 
 #' @rdname emp_acf
 #' @export
-emp_acf.lm = function(x, type = "correlation", robust = FALSE, ...){
-  emp_acf.default(x = x$residuals, robust = robust)
+emp_acf.lm = function(x, lag.max = 30L, type = "correlation", robust = FALSE, ...){
+  emp_acf.default(x = x$residuals, lag.max = lag.max, type = type, robust = robust)
 }
 
 #' @rdname emp_acf
 #' @export
-emp_acf.default = function(x, type = "correlation", robust = FALSE, ...){
+emp_acf.default = function(x, lag.max = 30L, type = "correlation", robust = FALSE, ...){
 
   # Force to matrix form
   if(is.ts(x) || is.atomic(x)){
@@ -250,16 +249,16 @@ emp_acf.default = function(x, type = "correlation", robust = FALSE, ...){
   }
 
   if(robust){
-    o = robcor::robacf(x, type = type, plot=FALSE)$acf
+    o = robcor::robacf(x, lag.max = lag.max, type = type, plot=FALSE)$acf
   }else{
-    o = acf(x, type = type, plot=FALSE)$acf
+    o = acf(x, lag.max = lag.max, type = type, plot=FALSE)$acf
   }
 
   cast_acf(o, nrow(x),
            name_ = paste0("Empirical ",
                           if(robust){ "Robust"} else { "Classical"} ,
                           " ACF"),
-           type = "Autocorrelation",
+           type = if(type == "correlation") {"Autocorrelation"} else {"Autocovariance"},
            class = "emp_acf")
 
 }
@@ -299,34 +298,35 @@ autoplot.emp_acf = function(object, show.ci = TRUE, ci = 0.95, ...){
 #' Empirical PACF
 #'
 #' Computes the empirical partial autocorrelation (PACF).
-#' @param x      A data set, \code{\link{arima}} or \code{\link{lm}}
+#' @param x       A data set, \code{\link{arima}} or \code{\link{lm}}
+#' @param lag.max A \code{integer} indicating the maximum lag to compute.
 #' @export
-emp_pacf = function(x, ...){
+emp_pacf = function(x, lag.max = 30, ...){
   UseMethod("emp_pacf")
 }
 
 #' @rdname emp_pacf
 #' @export
-emp_pacf.Arima = function(x, ...){
-  emp_pacf.default(x = x$residuals, ...)
+emp_pacf.Arima = function(x, lag.max = 30, ...){
+  emp_pacf.default(x = x$residuals, lag.max = lag.max, ...)
 }
 
 #' @rdname emp_pacf
 #' @export
-emp_pacf.lm = function(x, ...){
-  emp_pacf.default(x = x$residuals, ...)
+emp_pacf.lm = function(x, lag.max = 30, ...){
+  emp_pacf.default(x = x$residuals, lag.max = lag.max, ...)
 }
 
 #' @rdname emp_pacf
 #' @export
-emp_pacf.default = function(x, ...){
+emp_pacf.default = function(x, lag.max = 30, ...){
 
   # Force to matrix form
   if(is.ts(x) || is.atomic(x)){
     x = data.matrix(x)
   }
 
-  cast_acf(pacf(x, plot=FALSE)$acf, nrow(x),
+  cast_acf(pacf(x, lag.max = lag.max, plot=FALSE)$acf, nrow(x),
            name_ = "Empirical PACF",
            type = "Partial Autocorrelation",
            class = "emp_acf")
@@ -341,9 +341,9 @@ emp_pacf.default = function(x, ...){
 #' @examples
 #' # Computes the empirical correlation
 #' emp_corr(gnp)
-emp_corr = function(x, robust = FALSE){
-  structure(list(acf = emp_acf(x, robust = robust),
-                 pacf = emp_pacf(x)), class = "emp_corr")
+emp_corr = function(x, lag.max = 30, robust = FALSE){
+  structure(list(acf = emp_acf(x, lag.max = lag.max, robust = robust),
+                 pacf = emp_pacf(x, lag.max = lag.max)), class = "emp_corr")
 
 }
 

@@ -4,10 +4,12 @@
 \alias{emp_corr}
 \title{Compute Empirical ACF and PACF}
 \usage{
-emp_corr(x, robust = FALSE)
+emp_corr(x, lag.max = 30, robust = FALSE)
 }
 \arguments{
 \item{x}{A data set, \code{\link{arima}} or \code{\link{lm}}}
+
+\item{lag.max}{A \code{integer} indicating the length of the data.}
 
 \item{robust}{A \code{boolean} indicating whether to use a robust estimation.}
 }

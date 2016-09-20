@@ -4,10 +4,10 @@
 \alias{theo_corr}
 \title{Compute Theoretical ACF and PACF}
 \usage{
-theo_corr(model = ARMA(ar = c(0.5, -0.25), ma = 0.2), lag.max = NULL)
+theo_corr(model = ARMA(ar = c(0.5, -0.25), ma = 0.2), lag.max = 20)
 }
 \arguments{
-\item{lag.max}{A \code{integer} indicating the max length. Default is \eqn{max(ar, ma +1)}.}
+\item{lag.max}{A \code{integer} indicating the max length.}
 }
 \description{
 Computes both the ACF and PACF for a given process.

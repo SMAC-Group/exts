@@ -7,16 +7,21 @@
 \alias{emp_acf.lm}
 \title{Empirical ACF Plot}
 \usage{
-emp_acf(x, type = "correlation", robust = FALSE, ...)
+emp_acf(x, lag.max = 30L, type = "correlation", robust = FALSE, ...)
 
-\method{emp_acf}{Arima}(x, type = "correlation", robust = FALSE, ...)
+\method{emp_acf}{Arima}(x, lag.max = 30L, type = "correlation",
+  robust = FALSE, ...)
 
-\method{emp_acf}{lm}(x, type = "correlation", robust = FALSE, ...)
+\method{emp_acf}{lm}(x, lag.max = 30L, type = "correlation",
+  robust = FALSE, ...)
 
-\method{emp_acf}{default}(x, type = "correlation", robust = FALSE, ...)
+\method{emp_acf}{default}(x, lag.max = 30L, type = "correlation",
+  robust = FALSE, ...)
 }
 \arguments{
 \item{x}{A data set, \code{\link{arima}} or \code{\link{lm}}}
+
+\item{lag.max}{A \code{integer} indicating the length of the data.}
 
 \item{type}{A \code{string} with either \code{"correlation"} or \code{"covariance"}}
 

@@ -14,13 +14,15 @@ Imports: gridExtra,
          purrr,
          broom,
          dplyr,
-         tidyr
+         tidyr,
+         robcor
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Remotes: SMAC-Group/gmwm
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    astsa
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1

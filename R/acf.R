@@ -6,7 +6,11 @@ cast_acf = function(object, n, name_ = "Empirical", type = "Autocorrelation",
   if(is.null(nrow(object))){ dim(object) = c(length(object), 1, 1)}
 
   # Make pretty names
-  dimnames(object)  = list(seq_len(nrow(object)), name_, name_)
+  ids = seq_len(nrow(object))
+  if(type == "Autocorrelation" || type == "Autocovariance"){
+     ids = ids - 1
+  }
+  dimnames(object)  = list(ids, name_, name_)
 
   structure(object, type = type, n = n, class = c(class,"ACF","array"))
 }
@@ -46,7 +50,7 @@ autoplot.acf_plot = function(object, show.ci = TRUE, ci = 0.95, ...){
   Lag = xmin = xmax = ymin = ymax = NULL
 
   # Wide to long array transform
-  x2 = as.data.frame.table(object, responseName = "ACF")
+  x2 = as.data.frame.table(object, responseName = "ACF", stringsAsFactors = FALSE)
 
   colnames(x2) = c("Lag", "Signal X", "Signal Y", "ACF")
 

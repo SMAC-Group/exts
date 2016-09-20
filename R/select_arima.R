@@ -98,9 +98,9 @@ select_arima_ = function(xt, p = 0L, d = 0L, q = 0L,
 #' @importFrom broom glance
 #' @importFrom magrittr %>%
 select_arima = function(xt,
-                        p.min = 1L, p.max = 5L,
+                        p.min = 0L, p.max = 5L,
                         d.min = 0L, d.max = 2L,
-                        q.min = 1L, q.max = 5L,
+                        q.min = 0L, q.max = 5L,
                         include.mean = TRUE){
 
   o = select_arima_(xt,
@@ -114,8 +114,8 @@ select_arima = function(xt,
 #' @export
 #' @rdname select_arima
 select_arma = function(xt,
-                       p.min = 1L, p.max = 5L,
-                       q.min = 1L, q.max = 5L,
+                       p.min = 0L, p.max = 5L,
+                       q.min = 0L, q.max = 5L,
                        include.mean = TRUE){
 
   o = select_arima_(xt,
@@ -242,10 +242,10 @@ plot.select_arima = function(x, ...){
 #' @rdname plot.select_arima
 autoplot.select_arima = function(object, ...){
 
-  wrap_type = if(inherits(object, "select_arima")){
-    facet_grid(q ~ d)
-  } else{
+  wrap_type = if(inherits(object, "select_arma")){
     facet_wrap( ~ q)
+  } else{
+    facet_grid(q ~ d)
   }
 
   ggplot(object, aes(x = p, y = value, group = ic, color = ic)) +
@@ -254,7 +254,8 @@ autoplot.select_arima = function(object, ...){
     geom_point(data = subset(object, minval == TRUE), size = 3) +
     theme_bw() + labs(
       x = "Autoregressive order",
-      y = "Criterion value")
+      y = "Criterion value",
+      color = "Criterion")
 
 }
 

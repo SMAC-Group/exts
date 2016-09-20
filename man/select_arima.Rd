@@ -7,10 +7,10 @@
 \alias{select_ma}
 \title{Run Model Selection Criteria on ARIMA Models}
 \usage{
-select_arima(xt, p.min = 1L, p.max = 5L, d.min = 0L, d.max = 2L,
-  q.min = 1L, q.max = 5L, include.mean = TRUE)
+select_arima(xt, p.min = 0L, p.max = 5L, d.min = 0L, d.max = 2L,
+  q.min = 0L, q.max = 5L, include.mean = TRUE)
 
-select_arma(xt, p.min = 1L, p.max = 5L, q.min = 1L, q.max = 5L,
+select_arma(xt, p.min = 0L, p.max = 5L, q.min = 0L, q.max = 5L,
   include.mean = TRUE)
 
 select_ar(xt, p.min = 1L, p.max = 5L, include.mean = TRUE)

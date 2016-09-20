@@ -4,7 +4,7 @@
 \alias{eda_ts}
 \title{EDA on Time Series}
 \usage{
-eda_ts(xt, robust = FALSE, ...)
+eda_ts(xt, lag.max = 30, robust = FALSE, ...)
 }
 \arguments{
 \item{xt}{A data set}

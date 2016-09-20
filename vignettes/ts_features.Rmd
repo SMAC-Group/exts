@@ -24,15 +24,7 @@ students with the ability to interact with time series data. All functions
 will eventually end up either moving to a different package (perhaps `gmwm`) 
 or may end up being removed.
 
-To use the package simply load it into R via:
-
-```{r load_library, echo = FALSE, message = FALSE}
-library("exts")
-```
-
-Presently, `gmwm` and `magrittr` will autoload. 
-
-# Pipable Time Series Functions
+## Pipable Time Series Functions
 
 Outside of being used as an educational and practical tool, the package also
 serves to provide tenets of pipable data within a time series context. Thus, the
@@ -40,12 +32,81 @@ package is primarily designed with the notion of the piping operator (`%>%`)
 fully in play as well as other _R_ related tools like `dplyr` and `tidyr`.
 As this package is experimental, the implementations may shift significantly.
 
-# (R)ACF and PACF
+# Installation Instructions
 
-There exists built in functions that enable the computation of the ACF and PACF
-graphs. Specifically, these functions are given by:
+Presently, the package can only be obtained through GitHub. Plans for a 
+CRAN-based release are tentative. At some point, this may be added to SMAC's
+package mirror for the install.
 
-```{r}
+## Installing the package through GitHub (Developmental)
+
+For users who are interested in having the latest and greatest developments
+within time series, this option is ideal. Though, there is considerably more
+work that a user must do to have a stable version of the package. 
+**The setup to obtain the development version is platform dependent.**
+
+Specifically, one **must** have a compiler installed on your system that is 
+compatible with R.
+
+For help on obtaining a compiler consult:
+
+* [OS X](http://thecoatlessprofessor.com/programming/r-compiler-tools-for-rcpp-on-os-x/)
+* [Windows](http://stat385.thecoatlessprofessor.com/announcements/2016/07/25/install-rtools-for-rcpp/)
+
+Generally speaking, Linux users should have a compiler that is compatible with
+R already installed on their system.
+
+With the system dependency taken care of, we continue on by installing the R specific package dependencies and finally the package itself by doing the following in an R session: 
+
+```{r, eval = F}
+# Install dependencies
+# install.packages("devtools")
+
+# Install the package from GitHub without Vignettes/User Guides
+devtools::install_github("SMAC-Group/exts")
+
+# Install the package from GitHub with Vignettes/User Guides
+# Note: This will be a longer install as the vignettes must be built.
+devtools::install_github("SMAC-Group/exts", build_vignettes = TRUE)
+```
+
+## Using the package
+
+To use the package simply load it into R via:
+
+```{r load_library, message = FALSE}
+library("exts")
+```
+
+Presently, `gmwm` and `magrittr` will autoload allowing you to access
+`ts.model`, `gts`, and the pipe (`%>%`) operator.
+
+
+# Empirical and Theoretical (R)ACF and PACF
+
+One of the key features of time series resolves around understanding the
+dependency that exists between observations using autocorrelation.
+There exists four built in functions that enable the computation of the
+(Robust) Autocorrelation Function [(R)ACF] and Partial Autocorrelation Function
+(PACF). These functions come in two flavors: 
+
+1. empirical or sample-based via `emp_`
+2. theoretical ARMA processes via `theo_`
+
+The prior function handles . 
+The later is restricted to only analyzing autoregressive moving average processes
+through the `ARMA()` object found in `gmwm`. 
+
+To tell what kind of function was graphed, the graph heading will contain
+either "Empirical" or "Theoretical" along side the type of computation
+(e.g. (R)ACF or PACF).
+
+## Empirical (`emp_`) (R)ACF and PACF
+
+Empirical graphs for (R)ACF and PACF are great for analyzing sample time series
+data to determine the dependency structure. 
+
+```{r acf_pacf}
 # Set seed for reproducibility
 set.seed(8672)
 
@@ -53,72 +114,101 @@ set.seed(8672)
 xt = gen.gts(AR1(phi = 0.6, sigma2 = 1))
 
 # Obtain the empirical ACF
-xt %>% 
-  emp_acf %>%
-  autoplot
+vals = emp_acf(xt)
+autoplot(vals)
 
 # Obtain the empirical RACF (Robust ACF)
-xt %>% 
-  emp_acf(robust = TRUE) %>%
-  autoplot
+vals = emp_acf(xt, robust = TRUE)
+autoplot(vals)
+
+# Obtain the covariance
+vals = emp_acf(xt, type = "covariance")
+autoplot(vals)
 
 # Obtain the empirical PACF
-xt %>% 
-  emp_pacf %>%
-  autoplot
+vals = emp_pacf(xt)
+autoplot(vals)
+
+# Obtain both the empirical ACF & PACF
+vals = emp_corr(xt)
+autoplot(vals)
 ```
+
+## Theoretical (`theo_`) ACF and PACF graphs for ARMA Models
+
+Theoretical graphs for ACF and PACF are also available separately via 
+`theo_acf()` and `theo_pacf()` or combined into one via `theo_corr()`.
+
+```{r theo_arma_plots}
+model = ARMA(ar = c(.50, -0.25), ma = .20)
+
+# Theoretical ACF
+vals = theo_acf(model)
+autoplot(vals)
+
+# Theoretical PACF
+vals = theo_pacf(model)
+autoplot(vals)
+
+# Create a theoretical graph
+vals = theo_corr(model)
+autoplot(vals)
+```
+
+# Exploratory Data Analysis [EDA] (`eda_()`)
+
+Exploratory Data Analysis allows for visually and quantitatively obtaining
+graphing information.
 
 ## Observe ACF and PACF Graphs
 
 Often times, it is helpful to observe the time series, ACF, and PACF graphs 
 together. To do so, use:
 
-```{r, fig.width = 8}
+```{r eda_ts, fig.width = 8}
 # Bring in time series data
 xt = gts(log(lynx), start = 1821, freq = 1)
 
-xt %>%
-  eda_ts %>%
-  autoplot
-```
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt)
 
-## Theoretical ACF and PACF graphs for ARMA Models
-
-Theoretical graphs are also available separately via `theo_acf()` and `theo_pacf()`
-or combined into one via `theo_corr()`.
-
-```{r}
-model = ARMA(ar = c(.50, -0.25), ma = .20)
-
-# Theoretical ACF
-model %>%
-  theo_acf %>%
-  autoplot
-
-# Theoretical PACF
-model %>%
-  theo_pacf %>%
-  autoplot
-
-# Create a theoretical graph
-model %>%
-  theo_corr %>%
-  autoplot
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
 ```
 
 ## Compare Classical and Robust ACF
 
 To observe difference between the classical and robust ACF, one can use `compare_acf()`
 
-```{r, fig.width = 8}
+```{r compare_robust, fig.width = 8}
 # Bring in time series data
 xt = gts(log(lynx), start = 1821, freq = 1)
 
-xt %>%
-  compare_acf %>%
-  autoplot
+# Obtain the ACF values
+vals = compare_acf(xt)
+
+# Graph data
+autoplot(vals)
 ```
 
+## Data Transform Previews
+
+Often times, it is helpful to transform the data to attempt to make the time 
+series appear stationary. 
+
+```{r eda_change, fig.height = 6}
+# Default transforms
+vals = eda_change(gnp)
+autoplot(vals)
+
+# Default transforms but applied together in the second case
+vals = eda_change(gnp, both = TRUE)
+autoplot(vals)
+
+# Different Transforms and applied separately in the second case
+vals = eda_change(gnp, t1 = sqrt, t2 = log10)
+autoplot(vals)
+```
 
 # Diagnostic Functions
 
@@ -132,11 +222,10 @@ Residuals are able to be extract from `arima` and `lm` classes in addition to
 manipulated to be standardized via `resid / sd(resid)` through a `std = TRUE`
 flag.
 
-```{r}
+```{r residual_plots}
 # Extract and standardize residuals
-sunspot.year %>%
-  arima(c(9,0,0)) %>%
-  diag_resid(std = TRUE) -> resids
+model = arima(sunspot.year, c(9,0,0))
+resids = diag_resid(model, std = TRUE)
 
 # Graph Histogram
 autoplot(resids, type = "hist")
@@ -153,17 +242,15 @@ autoplot(resids, type = "both")
 The `diag_qq` plot creates a quantil-quantile plot that contains a fitted
 normal line. Typically, this plot is used to evaluate the residuals of a model.
 
-```{r}
+```{r qq_plot}
 # Observing residuals of an Arima process
-sunspot.year %>%
-  arima(c(9,0,0)) %>%
-  diag_qq(std = TRUE) %>%
-  autoplot
+model = arima(sunspot.year, c(9,0,0))
+vals = diag_qq(model, std = TRUE)
+autoplot(vals)
 
 # Observe time series
-sunspot.year %>%
-  diag_qq(std = FALSE) %>%
-  autoplot
+vals = diag_qq(sunspot.year, std = TRUE)
+autoplot(vals)
 ```
 
 ## Wavelet Variance (WV) Estimate of White Noise (`diag_wv`)
@@ -173,12 +260,11 @@ observed process is a White Noise. If the orange line follows the dark blue
 line closely or remains within the blue confidence interval, then the process
 is likely to be a white noise.
 
-```{r}
+```{r wv_plot}
 # White Noise Process
-sunspot.year %>%
-  arima(c(9,0,0)) %>%
-  diag_wv %>%
-  autoplot
+model = arima(sunspot.year, c(9,0,0))
+vals = diag_wv(model)
+autoplot(vals)
 ```
 
 ## Portmanteau Tests
@@ -189,18 +275,15 @@ hypothesis of independence in a given time series. The function makes available
 a `data.frame` containing: `lag`, `p_value`, `statistic` for each of the tests
 run that can then be used to achieve a diagnostic plot like so:
 
-```{r}
+```{r portmanteau_test}
 # Ljung-Box test
-sunspot.year %>%
-  arima(c(9,0,0)) %>%
-  diag_ljungbox %>%
-  autoplot
+model = arima(sunspot.year, c(9,0,0))
+vals = diag_ljungbox(model)
+autoplot(vals)
 
 # Box-Pierce Test
-sunspot.year %>%
-  arima(c(9,0,0)) %>%
-  diag_boxpierce %>%
-  autoplot
+vals = diag_boxpierce(model)
+autoplot(vals)
 ```
 
 ## Residual vs. Fitted Values (Developmental)
@@ -209,15 +292,17 @@ sunspot.year %>%
 
 One further useful plot is to compare the residuals to the fitted values.
 
-```{r, fig.width = 5}
+```{r fitted_residual}
 xt = sunspot.year
 model = arima(xt, c(9,0,0))
 
+# Note additional manipulation is required outside the function
+# to obtain the two parameters are required
 resids = resid(model)
 fit = xt - resids
 
-diag_fitted(fit, resids) %>%
-  autoplot
+vals = diag_fitted(fit, resids)
+autoplot(vals)
 ```
 
 ## Master Diagnostic Plot (Developmental)
@@ -230,11 +315,14 @@ Each of the diagnostic plots are available standalone. However, there is benefit
 to plotting all of the diagnostic information simultaneously. Hence, the `diag_ts()`
 function that will calculate all of the above values and provide a diagnostic plot.
 
-```{r, fig.width = 5}
+```{r diag_ts, fig.height = 5, fig.width = 8}
+# Observing residuals of an Arima process
 xt = sunspot.year
 model = arima(xt, c(9,0,0))
-diag_ts(model, xt) %>% 
-  autoplot
+
+# Note two parameters are required
+vals = diag_ts(model, xt)
+autoplot(vals)
 ```
 
 # Selecting an appropriate time series model
@@ -257,26 +345,67 @@ To acess the best model according to one of the criteria, use: `best_model(x, ic
 
 ```{r}
 # Bring in time series data
-sunspot.year %>%
-  gts(start = 1700, freq = 1) %>%
-  select_ar(p.min = 1, p.max = 8) -> model_info
+xt = gts(diff(log(gnp)), start = 1700, freq = 1)
+model_info = select_ar(xt, p.min = 1, p.max = 8)
 
 # Obtain a plot of the model selection criteria
-model_info %>% 
-  autoplot
+autoplot(model_info)
 
 # Obtain the best model (AIC is default)
-model_info %>%
-  best_model
+best_model(model_info)
 
 # Obtain the best model with BIC
-model_info %>%
-  best_model(ic = 'bic') -> bmodel
+bmodel = best_model(model_info, ic = "bic")
+
+bmodel
 
 # See the ACF of the residuals for the model
-bmodel %>%
-  emp_corr %>%
-  autoplot
+vals = emp_corr(bmodel)
+autoplot(vals)
+```
+
+## Selecting multiple dimensions `select_arima()` and `select_arma()`
+
+**Warning: These procedures have been known to have issues with the initial
+range of parameters to attempt. You may wish to change default `*.min` and `*.max`
+when applicable. At a later time, support for functional errors should resolve
+this issue.**
+
+```{r}
+# Bring in time series data
+xt = gts(diff(log(gnp)), start = 1700, freq = 1)
+model_info = select_arma(xt, p.max = 4, q.max = 3)
+
+# Obtain a plot of the model selection criteria
+autoplot(model_info)
+
+# Obtain the best model (AIC is default)
+best_model(model_info)
+
+# Obtain the best model with BIC
+bmodel = best_model(model_info, ic = "bic")
+
+bmodel
+
+# See the ACF of the residuals for the model
+vals = emp_corr(bmodel)
+autoplot(vals)
+```
+
+# Forecasting Abilities
+
+
+
+## Other Packages
+
+The textbook "Time Series Analysis and Its Applications: With Examples in R" (ASTSA)
+provides the `astsa` package. This package is able to provide better forecasting
+when it comes to model fitting temporarily. The code below is found on page
+165 of the ASTSA text.
+
+```{r other_package, fig.height = 6, message = FALSE}
+library("astsa")
+pred = sarima.for(prodn, 12, 2, 1, 1, 0, 1, 3, 12) # forecast
 ```
 
 # Utilities
@@ -290,7 +419,7 @@ for both casting simulated data stored by row (default) and by column into a
 `Round` and `Draw` framework, where `Round` means the simulation iteration and
 `Draw` means the statistic observed.
 
-```{r}
+```{r simulation_objects}
 # Set Seed
 set.seed(5812)
 
@@ -298,17 +427,20 @@ set.seed(5812)
 m = matrix(rnorm(10), 2, 5)
 
 # Organize by row
-m %>%
-  cast_simdf %>%
-  head(n = 5)
+wide_m = cast_simdf(m)
+
+# View first 5 rows
+head(wide_m, n = 5)
 
 # Organize by column
-m %>%
-  cast_simdf(wide = FALSE) %>%
-  head(n = 5)
+long_m = cast_simdf(m, wide = FALSE)
 
-# Graph
-m %>%
-  cast_simdf(wide = FALSE) %>%
-  autoplot
+# View first 5 rows
+head(long_m, n = 5)
+
+# Graph wide
+autoplot(wide_m)
+
+# Graph long
+autoplot(long_m)
 ```

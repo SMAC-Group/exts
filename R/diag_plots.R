@@ -209,7 +209,7 @@ diag_qq.default = function(x, std = FALSE){
     x = x/sd(x)
   }
 
-  df_x = data.frame(residuals = x)
+  df_x = data.frame(residuals = sort(x))
   n = nrow(df_x)
 
   df_x$quantiles = qnorm((1:n)/(n+1))

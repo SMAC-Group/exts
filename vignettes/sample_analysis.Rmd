@@ -1,0 +1,183 @@
+---
+title: "Sample Analyses using exts"
+author: "Stephane Guerrier and James Balamuta"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Sample Analyses using exts}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.width = 7)
+```
+
+# Introduction
+
+The objective behind this vignette is to provide a workflow of sample uses 
+cases of this package as it relates to analyzing different time series data.
+
+To use this package, one must first install it. More detailed instructions
+are given in the Experimental Times Series Features Vignette.
+
+```{r install_notes, eval = FALSE}
+# Installation
+install.packages(c("astsa","exts"))
+
+# devtools::install_github("SMAC-Group/exts", build_vignettes = TRUE)
+devtools::install_github("SMAC-Group/exts")
+```
+
+To load the packages use:
+
+```{r load_package, message=FALSE}
+# Load packages
+library(exts)
+library(astsa)
+```
+
+# Sample Analyses
+
+Next are a few short example cases that use the package to analyze time series
+data.
+
+## Lynx Data Set (`lynx`)
+
+```{r lynx_data, fig.width = 8}
+################################
+## Example: Lynx
+################################
+# Bring in time series data
+xt = gts(log(lynx), start = 1821, freq = 1)
+
+# Obtain the ACF values
+vals = compare_acf(xt)
+
+# Graph data
+autoplot(vals)
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+
+```{r lynx_data2}
+# Select AR coeficient
+model_info = select_ar(xt, p.min = 1, p.max = 15)
+
+# Obtain a plot of the model selection criteria
+autoplot(model_info)
+```
+
+```{r fig.width = 8.5}
+# Fit selected model
+model = arima(xt, c(12,0,0))
+
+# Diagnostic plot
+# Note two parameters are required
+vals = diag_ts(model, xt)
+autoplot(vals)
+```
+
+
+## GNP Data Set (`gnp`)
+
+```{r gnp_data, fig.height = 6}
+################################
+## Example: GNP
+################################
+# Default transforms but applied together in the second case
+vals = eda_change(gnp, both = TRUE)
+autoplot(vals)
+```
+
+```{r gnp_data2, fig.width = 8.5}
+# Bring in time series data
+xt = gts(diff(log(gnp)), start = 1700, freq = 1)
+
+# Obtain the ACF values
+vals = compare_acf(xt)
+
+# Graph data
+autoplot(vals)
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+```
+
+```{r gnp_data3}
+# Select model
+model_info = select_arma(xt, p.max = 4, q.max = 3)
+
+# Obtain a plot of the model selection criteria
+autoplot(model_info)
+```
+
+```{r gnp_data4, fig.width = 8.5, fig.height = 5}
+# Fit selected model
+model = arima(xt, c(3,0,2))
+
+# Diagnostic plot
+# Note two parameters are required
+vals = diag_ts(model, xt)
+autoplot(vals)
+```
+
+## Production Index Data (`prodn`)
+
+```{r prodn, fig.width = 8.5}
+################################
+## Example: Production index
+################################
+data(prodn)
+xt = gts(prodn, start = 1948, freq = 12, unit = "year")
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt, lag.max = 48)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+
+# d = 1
+xt = gts(diff(prodn), start = 1948, freq = 12, unit = "year")
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt, lag.max = 48)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+
+# d = 1 and D = 1
+xt = gts(diff(diff(prodn),12), start = 1948, freq = 12, unit = "year")
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt, lag.max = 48)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+
+# Fit models
+m1 = arima(prodn, c(2,1,0), seasonal = list(order = c(0, 1, 1), period = 12))
+m2 = arima(prodn, c(2,1,0), seasonal = list(order = c(0, 1, 2), period = 12))
+m3 = arima(prodn, c(2,1,0), seasonal = list(order = c(0, 1, 3), period = 12))
+m4 = arima(prodn, c(2,1,0), seasonal = list(order = c(0, 1, 4), period = 12))
+
+# Compute AIC
+AIC(m1)
+AIC(m2)
+AIC(m3)
+AIC(m4)
+```
+
+```{r prodn_2, fig.width = 8.5, fig.height = 5}
+# Diagnostic plot
+# Note two parameters are required
+vals = diag_ts(m3, prodn)
+autoplot(vals)
+```

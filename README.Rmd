@@ -14,18 +14,66 @@ knitr::opts_chunk$set(
 
 # Experimental Features for Time Series (`exts`)
 
-The skunkworks of SMAC for Time Series. All features here are experimental
-and may break at a moments notice! 
+The package as it presently stands contains functions experimental
+and may break at a moments notice. These functions are being developed for use
+within Fall 2016 courses at the University of Illinois at Urbana-Champaign (UIUC).
+Specifically, students are using these functions within 
+STAT 578 (Special Topic): Time Series Forecasting and
+STAT 429: Time Series Analysis. Presently, the functions are meant to provide
+students with the ability to interact with time series data.
+All functions will eventually end up either moving to a different package 
+(perhaps `gmwm`)  or may end up being removed. Hence, 
+be wary of applying a dependency to `exts` as this is serving as a
+very _public_ skunkworks.
 
-# Installation
+# Installation Instructions
 
-This package is a non-cran package for the moment being. Thus, to install it
-you will need to use [`devtools`](https://github.com/hadley/devtools).
+Presently, the package can only be obtained through GitHub. Plans for a 
+CRAN-based release are tentative. At some point, this may be added to SMAC's
+package mirror for the install.
 
-```{r devt, eval = F}
+## Installing the package through GitHub (Developmental)
+
+For users who are interested in having the latest and greatest developments
+within time series, this option is ideal. Though, there is considerably more
+work that a user must do to have a stable version of the package. 
+**The setup to obtain the development version is platform dependent.**
+
+Specifically, one **must** have a compiler installed on your system that is 
+compatible with R.
+
+For help on obtaining a compiler consult:
+
+* [OS X](http://thecoatlessprofessor.com/programming/r-compiler-tools-for-rcpp-on-os-x/)
+* [Windows](http://stat385.thecoatlessprofessor.com/announcements/2016/07/25/install-rtools-for-rcpp/)
+
+Generally speaking, Linux users should have a compiler that is compatible with
+R already installed on their system.
+
+With the system dependency taken care of, we continue on by installing the R specific package dependencies and finally the package itself by doing the following in an R session: 
+
+```{r, eval = F}
+# Install dependencies
 # install.packages("devtools")
+
+# Install the package from GitHub without Vignettes/User Guides
 devtools::install_github("SMAC-Group/exts")
+
+# Install the package from GitHub with Vignettes/User Guides
+# Note: This will be a longer install as the vignettes must be built.
+devtools::install_github("SMAC-Group/exts", build_vignettes = TRUE)
 ```
+
+## Using the package
+
+To use the package simply load it into R via:
+
+```{r load_library, message = FALSE}
+library("exts")
+```
+
+Presently, `gmwm` and `magrittr` will autoload allowing you to access
+`ts.model`, `gts`, and the pipe (`%>%`) operator.
 
 # Warning
 

@@ -63,6 +63,7 @@ vals = eda_ts(xt)
 
 # Graph Data, Empirical (R)ACF, and Empirical PACF
 autoplot(vals)
+```
 
 ```{r lynx_data2}
 # Select AR coeficient
@@ -179,5 +180,53 @@ AIC(m4)
 # Diagnostic plot
 # Note two parameters are required
 vals = diag_ts(m3, prodn)
+autoplot(vals)
+```
+
+## Unemployment Data (`unemp`)
+
+```{r unemp_data, height = 6}
+################################
+## Example: Unemployment
+################################
+# Bring in time series data
+data("unemp", package="astsa")
+Xt = gts(unemp, start = 1948, freq = 12)
+autoplot(Xt) + ylab("Monthly US Unemployement Index")
+```
+
+```{r unemp_data2, fig.width = 8}
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(Xt, lag.max = 48)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+
+# Take difference
+Xt = diff(unemp)
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(Xt, lag.max = 48)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+
+# Take a difference, then take a seasonal difference
+Xt = diff(diff(unemp),12)
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(Xt, lag.max = 48)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+```
+
+```{r unemp_data3, fig.width = 8.5, fig.height = 5}
+# Create a seasonal arima model
+m5 = arima(unemp, c(2,1,0), seasonal = list(order = c(0, 1, 1), period = 12))
+
+# Diagnostic plot
+# Note two parameters are required
+vals = diag_ts(m5, prodn)
 autoplot(vals)
 ```

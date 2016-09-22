@@ -73,7 +73,7 @@ model_info = select_ar(xt, p.min = 1, p.max = 15)
 autoplot(model_info)
 ```
 
-```{r fig.width = 8.5}
+```{r lynx_data3, fig.height = 5, fig.width = 8.5}
 # Fit selected model
 model = arima(xt, c(12,0,0))
 
@@ -83,6 +83,42 @@ vals = diag_ts(model, xt)
 autoplot(vals)
 ```
 
+## sunspot Year Data (`sunspot.year`)
+
+```{r sunspot_year}
+################################
+## Example: Sunspot Year
+################################
+xt = gts(sunspot.year, start = 1700, freq = 1, unit = "year")
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt, lag.max = 25)
+
+# Graph Data, Empirical (R)ACF, and Empirical PACF
+autoplot(vals)
+
+# Obtain Empirical ACF & PACF alongside data
+vals = eda_ts(xt, lag.max = 48)
+autoplot(vals)
+```
+
+```{r sunspot_year2}
+# Select AR coeficient
+model_info = select_ar(xt, p.min = 1, p.max = 15)
+
+# Obtain a plot of the model selection criteria
+autoplot(model_info)
+```
+
+```{r sunspot_year3, fig.height = 5, fig.width = 8.5}
+# Obtain best model according to 'aic'
+model = best_model(model_info)
+
+# Diagnostic plot
+# Note two parameters are required
+vals = diag_ts(model, xt)
+autoplot(vals)
+```
 
 ## GNP Data Set (`gnp`)
 
@@ -230,3 +266,4 @@ m5 = arima(unemp, c(2,1,0), seasonal = list(order = c(0, 1, 1), period = 12))
 vals = diag_ts(m5, prodn)
 autoplot(vals)
 ```
+

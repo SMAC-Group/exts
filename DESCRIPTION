@@ -1,6 +1,6 @@
 Package: exts
 Title: Experimental Features for Time Series
-Version: 0.0.0.9000
+Version: 0.0.2.9000
 Authors@R: c(person("James", "Balamuta", email = "balamut2@illinois.edu", role = c("aut", "cre")),
              person("Stephane", "Guerrier", email = "stephane@illinois.edu", role = c("aut")))
 Description: Different ideas for time series implementations are housed here
@@ -8,7 +8,7 @@ Description: Different ideas for time series implementations are housed here
 Depends:
     R (>= 3.3.1),
     magrittr,
-    gmwm
+    gmwm (>= 3.0.0)
 Imports: gridExtra,
          scales,
          purrr,

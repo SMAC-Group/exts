@@ -111,7 +111,7 @@ data to determine the dependency structure.
 set.seed(8672)
 
 # Generate an AR1
-xt = gen.gts(AR1(phi = 0.6, sigma2 = 1))
+xt = gen_gts(1000, AR1(phi = 0.6, sigma2 = 1))
 
 # Obtain the empirical ACF
 vals = emp_acf(xt)

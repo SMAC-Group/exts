@@ -395,7 +395,6 @@ autoplot(vals)
 # Forecasting Abilities
 
 
-
 ## Other Packages
 
 The textbook "Time Series Analysis and Its Applications: With Examples in R" (ASTSA)
@@ -408,39 +407,3 @@ library("astsa")
 pred = sarima.for(prodn, 12, 2, 1, 1, 0, 1, 3, 12) # forecast
 ```
 
-# Utilities
-
-The package hosts various utilities to improve working with simulated data.
-
-In particular, the package offers the ability to cast a simulation `matrix` to
-`data.frame` for graphing within `ggplot2`. The simulation cast feature is
-meant to ease the use of simulated data within `ggplot2`. Thus, support exists
-for both casting simulated data stored by row (default) and by column into a
-`Round` and `Draw` framework, where `Round` means the simulation iteration and
-`Draw` means the statistic observed.
-
-```{r simulation_objects}
-# Set Seed
-set.seed(5812)
-
-# Generate data
-m = matrix(rnorm(10), 2, 5)
-
-# Organize by row
-wide_m = cast_simdf(m)
-
-# View first 5 rows
-head(wide_m, n = 5)
-
-# Organize by column
-long_m = cast_simdf(m, wide = FALSE)
-
-# View first 5 rows
-head(long_m, n = 5)
-
-# Graph wide
-autoplot(wide_m)
-
-# Graph long
-autoplot(long_m)
-```

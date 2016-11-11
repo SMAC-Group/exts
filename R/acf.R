@@ -20,7 +20,7 @@ cast_acf = function(object, n, name_ = "Empirical", type = "Autocorrelation",
 #'
 #' Generic ACF plot function for empirical and theoretical graphs
 #' @param x,object  A object from \code{\link{emp_acf}}, \code{\link{emp_pacf}},
-#' \code{\link{theo_acf_arma}}, or \code{\link{theo_pacf_arma}}.
+#' \code{\link{theo_acf}}, or \code{\link{theo_pacf}}.
 #' @param show.ci   A \code{bool} indicating whether to show confidence region
 #' @param ci        A \code{double} containing the 1-alpha level. Default is 0.95
 #' @param ...       Additional parameters

@@ -103,6 +103,7 @@ plot.diag_portmanteau = function(x, ...){
 #' @inheritParams plot.diag_portmanteau
 #' @export
 #' @rdname diag_portmanteau
+#' @importFrom ggplot2 autoplot
 autoplot.diag_portmanteau = function(object, ...){
 
   test = if(inherits(object, "diag_ljungbox")) {"Ljung-Box"} else {"Box-Pierce"}

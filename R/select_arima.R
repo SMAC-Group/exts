@@ -165,7 +165,7 @@ select_ma = function(xt, q.min = 1, q.max = 10,
 #' sunspot.year %>%
 #'  gts(start = 1700, freq = 1) %>%
 #'  select_ar(p.min = 1, p.max = 8) %>%
-#'  best_model(criterion = "bic")
+#'  best_model(ic = "bic")
 #' @importFrom dplyr filter_
 best_model = function(x, ic = "aic"){
 
@@ -240,6 +240,7 @@ plot.select_arima = function(x, ...){
 
 #' @export
 #' @rdname plot.select_arima
+#' @importFrom ggplot2 autoplot
 autoplot.select_arima = function(object, ...){
 
   wrap_type = if(inherits(object, "select_arma")){

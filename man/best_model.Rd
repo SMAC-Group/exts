@@ -19,6 +19,6 @@ Retrieves the best model
 sunspot.year \%>\%
  gts(start = 1700, freq = 1) \%>\%
  select_ar(p.min = 1, p.max = 8) \%>\%
- best_model(criterion = "bic")
+ best_model(ic = "bic")
 }
 

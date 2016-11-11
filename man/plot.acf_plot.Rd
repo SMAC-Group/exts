@@ -11,7 +11,7 @@
 }
 \arguments{
 \item{x, object}{A object from \code{\link{emp_acf}}, \code{\link{emp_pacf}},
-\code{\link{theo_acf_arma}}, or \code{\link{theo_pacf_arma}}.}
+\code{\link{theo_acf}}, or \code{\link{theo_pacf}}.}
 
 \item{show.ci}{A \code{bool} indicating whether to show confidence region}
 

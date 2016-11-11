@@ -124,6 +124,12 @@ diag_wv = function(x){
 
 #' @export
 #' @rdname diag_wv
+diag_wv.diag_resid = function(x){
+  diag_wv.default(resid(x))
+}
+
+#' @export
+#' @rdname diag_wv
 diag_wv.lm = function(x){
   diag_wv.default(resid(x))
 }
@@ -262,6 +268,7 @@ autoplot.diag_qq = function(object, ...){
 #' model.
 #' @param fitted A \code{numeric vector} containing fitted values from the model.
 #' @param resid  A \code{numeric vector} containing residuals.
+#' @param std    A \code{boolean} indicating whether to standardize the residuals
 #' @return A \code{data.frame} with structure
 #' \itemize{
 #' \item{fitted}{Fitted Values}
@@ -271,9 +278,15 @@ autoplot.diag_qq = function(object, ...){
 #' This function will be reworked at a later time to provide model support.
 #' @export
 #' @rdname diag_fitted
-diag_fitted = function(fitted, resid) {
+diag_fitted = function(fitted, resid, std = FALSE) {
+
+  if(std){
+    resid = resid/sd(resid)
+  }
+
   structure(data.frame(fitted = as.numeric(fitted),
                        residuals = as.numeric(resid), stringsAsFactors = FALSE),
+            std = std,
             class = c("diag_fitted","data.frame"))
 }
 
@@ -291,14 +304,19 @@ plot.diag_fitted = function(x, ...) {
 #' @export
 #' @rdname plot.diag_fitted
 autoplot.diag_fitted = function(object, ...){
+  std = attr(object,'std')
+
+  restype = if(std){ "Standardized "} else { "" }
+  resabb = if(std) { "Std. "} else { "" }
+
   ggplot(object, aes(x = fitted, y = residuals)) +
     geom_point() +
     geom_hline(yintercept = 0, color = "red", linetype="dashed") +
     stat_smooth(method = "loess") +
     labs(
       x = "Fitted values",
-      y = "Residuals",
-      title = "Residuals vs Fitted Plot"
+      y = paste0(restype, "Residuals"),
+      title = paste0(resabb, "Residuals vs Fitted Plot")
     ) + theme_bw()
 }
 
@@ -314,23 +332,32 @@ autoplot.diag_fitted = function(object, ...){
 #' not (\code{FALSE}).
 #' @return A \code{diag_ts} object
 #' @export
-diag_ts = function(model, xt, test = "ljung-box", robust = FALSE){
+diag_ts = function(model, xt, std = TRUE, test = "ljung-box", robust = FALSE){
 
   res = resid(model)
+
   fitted = as.numeric(xt - res) # fitted() no go for arima...
 
+  prt = if(tolower(test) == "ljung-box"){
+    diag_ljungbox(model, stdres = std, stop_lag = 30)
+  } else{
+    diag_boxpierce(model, stdres = std, stop_lag = 30)
+  }
+
+  if(std){
+    res2 = res/sd(res)
+  } else{
+    res2 = res
+  }
+
   structure(list(
-    prt = if(tolower(test) == "ljung-box"){
-      diag_ljungbox(model, stop_lag = 30)
-    } else{
-      diag_boxpierce(model, stop_lag = 30)
-    },
-    res = diag_resid(model),
-    fit = diag_fitted(fitted,res),
-    acf = emp_acf(model),
-    pacf = emp_pacf(model),
-    wv = diag_wv(model),
-    qq = diag_qq(model)), class = c("diag_ts","list"))
+    prt = prt,
+    res = diag_resid(model, std = std),
+    fit = diag_fitted(fitted, res, std = std),
+    acf = emp_acf(res2),
+    pacf = emp_pacf(res2),
+    wv = diag_wv(res2),
+    qq = diag_qq(model, std = std)), class = c("diag_ts","list"))
 
 }
 

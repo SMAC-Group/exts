@@ -4,10 +4,13 @@
 \alias{diag_wv}
 \alias{diag_wv.Arima}
 \alias{diag_wv.default}
+\alias{diag_wv.diag_resid}
 \alias{diag_wv.lm}
 \title{Wavelet Variance (WV) fit for White Noise}
 \usage{
 diag_wv(x)
+
+\method{diag_wv}{diag_resid}(x)
 
 \method{diag_wv}{lm}(x)
 

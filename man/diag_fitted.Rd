@@ -4,12 +4,14 @@
 \alias{diag_fitted}
 \title{Bind Fitted and Residual Values}
 \usage{
-diag_fitted(fitted, resid)
+diag_fitted(fitted, resid, std = FALSE)
 }
 \arguments{
 \item{fitted}{A \code{numeric vector} containing fitted values from the model.}
 
 \item{resid}{A \code{numeric vector} containing residuals.}
+
+\item{std}{A \code{boolean} indicating whether to standardize the residuals}
 }
 \value{
 A \code{data.frame} with structure

@@ -4,19 +4,19 @@
 \alias{diag_ts}
 \title{Time Series Diagnostics}
 \usage{
-diag_ts(model, xt, test = "ljung-box", robust = FALSE)
+diag_ts(model, xt, std = TRUE, test = "ljung-box", robust = FALSE)
 }
 \arguments{
 \item{model}{An \code{\link{arima}} object.}
 
 \item{xt}{The data used to construct said model.}
 
+\item{std}{A \code{boolean} indicating whether residuals should be standardized.}
+
 \item{test}{A \code{string} indicating the type of portmanteau test to run.}
 
 \item{robust}{A \code{boolean} indicating whether the ACF should be robust (\code{TRUE}) or
 not (\code{FALSE}).}
-
-\item{std}{A \code{boolean} indicating whether residuals should be standardized.}
 }
 \value{
 A \code{diag_ts} object

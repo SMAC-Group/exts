@@ -1,0 +1,42 @@
+title: exts
+
+templates:
+  params:
+    bootswatch: cerulean
+
+reference:
+  - title: EDA
+    desc: Exploratory Data Analysis (EDA) for Time Series
+    contents:
+    - starts_with("eda_")
+  - title: Model Selection for Time Series
+    desc: Model Selection techniques for Time Series
+    contents:
+    - starts_with("select_")
+    - best_model
+  - title: Diagnostics for Time Series
+    desc: Diagnostic functions to assess model fit for time series
+    contents:
+    - starts_with("diag_")
+  - title: Theoretical P/ACF
+    desc: Theoretical computations for an ARMA Process related to P/ACF
+    contents:
+    - starts_with("theo_")
+  - title: Empirical P/ACF
+    desc: Empirical computations for P/ACF
+    contents:
+    - starts_with("emp_")
+    - compare_acf
+  - title: Graphical Features
+    desc: Graphing routines that provide visualizations for the data objects
+    contents:
+    - starts_with("plot")
+
+navbar:
+  left:
+  - text: Time Series Features
+    href: articles/ts_features.html
+  - text: Sample Analyses
+    href: articles/sample_analyses.html
+  - text: Reference
+    href: reference/index.html

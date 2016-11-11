@@ -6,3 +6,6 @@
 is.diag_resid = function(x){
   inherits(x, "diag_resid")
 }
+
+#' @importFrom ggplot2 autoplot
+NULL

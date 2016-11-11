@@ -28,6 +28,7 @@ plot.eda_ts = function(x, ...){
 
 #' @rdname plot.eda_ts
 #' @export
+#' @importFrom ggplot2 autoplot
 autoplot.eda_ts = function(object, ...){
   grid.arrange(plot(object$data), plot(object$acf), plot(object$pacf), nrow = 1)
 }
@@ -48,20 +49,27 @@ autoplot.eda_ts = function(object, ...){
 #' }
 #' @export
 eda_change = function(x, t1 = diff, t2 = log, both = FALSE){
-  o = gts(x, start = 1947, freq = 4)
+  o = gts(x)
 
-  val1 = gts(t1(x), start = 1947, freq = 4)
+  func1_name = deparse(substitute(t1))
+  func2_name = deparse(substitute(t2))
+
+  val1 = gts(t1(x))
+  attr(val1, "transform_name") = paste0(func1_name,"(x)")
 
   if(both){
     val2 = gts(t1(t2(o)))
+    attr(val2, "transform_name") = paste0(func1_name,"(",func2_name,"(x)","))")
   } else{
     val2 = gts(t2(o))
+    attr(val2, "transform_name") = paste0(func2_name,"(x)")
   }
 
   # Extend to add in type of transforms...
   structure(list(original = o, transform1 = val1, transform2 = val2),
             both = both, class = c("eda_change","list"))
 }
+
 
 #' Plot Different Time Series Transforms
 #'
@@ -76,13 +84,16 @@ plot.eda_change = function(x, ...){
 
 #' @export
 #' @rdname plot.eda_change
+#' @importFrom ggplot2 autoplot
 autoplot.eda_change = function(object, ...) {
 
   p1 = autoplot(object$original)
 
-  p2 = autoplot(object$transform1)
+  p2 = autoplot(object$transform1) +
+        ylab(paste0("Observations ", attr(object$transform1,"transform_name")))
 
-  p3 = autoplot(object$transform2)
+  p3 = autoplot(object$transform2) +
+        ylab(paste0("Observations ", attr(object$transform2,"transform_name")))
 
   grid.arrange(p1, p2, p3, nrow = 3)
 }
@@ -115,6 +126,7 @@ plot.eda_ts = function(x, ...){
 
 #' @rdname plot.eda_ts
 #' @export
+#' @importFrom ggplot2 autoplot
 autoplot.eda_ts = function(object, ...){
   grid.arrange(plot(object[[1]]), plot(object[[2]]), plot(object[[3]]), nrow = 1)
 }

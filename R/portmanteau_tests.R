@@ -18,7 +18,7 @@ diag_portmanteau_ = function(x, order = NULL, stop_lag = 20, stdres = FALSE, tes
   diag_lags = (order+1):stop_lag
 
   for(i in diag_lags){
-    active = Box.test(x, lag = i, type = "Ljung-Box", fitdf = order)
+    active = Box.test(x, lag = i, type = test, fitdf = order)
     mat[i,] = c(active$p.value, active$statistic)
   }
 
